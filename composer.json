@@ -1,0 +1,20 @@
+{
+    "name": "bvipul/laravel-encrypts-attributes",
+    "license": "MIT",
+    "description": "This package will be used to encrypt attributes of a model.",
+    "authors": [
+        {
+            "name": "Vipul Basapati",
+            "email": "basapativipulkumar@gmail.com"
+        }
+    ],
+    "require": {
+    	"illuminate/encryption": "^5.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bvipul\\EncryptsAttributes\\": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
