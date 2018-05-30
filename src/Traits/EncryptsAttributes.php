@@ -2,6 +2,8 @@
 
 namespace Bvipul\EncryptsAttributes\Traits;
 
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\EncryptException;
 use Illuminate\Contracts\Encryption\DecryptException;
 
 trait EncryptsAttributes
@@ -15,24 +17,52 @@ trait EncryptsAttributes
     {
         parent::boot();
 
+        static::addGlobalScope(function($builder) {
+            // dd($builder->getQuery()->bindings);
+            $bindingTypes = $builder->getQuery()->bindings;
+            // dd($bindingTypes);
+
+            $encrypted_bindings = [];
+            
+            // if(count($bindings) > 0) {
+            foreach($bindingTypes as $type => $bindings) {
+                // dd($type, $binding);
+                if(count($bindings) > 0) {
+                    foreach($bindings as $binding) {
+                        $encrypted_bindings[$type][] = Crypt::encrypt($binding);        
+                    }
+                } else {
+                    $encrypted_bindings[$type] = [];
+                }
+            }    
+            // }
+            // $builder->getQuery->addBinding()
+            dd($encrypted_bindings);
+            $builder->getQuery()->setBindings($encrypted_bindings);
+        });
+
         // This event is called when a new record is getting created or updated
         static::saving(function($model) {
-            $attributes = $model->getFillableAttributes();
+            $attributes = $model->getEncryptionAttributes();
 
             foreach($attributes as $key => $attribute) {
-                $model->$key = encrypt($attribute);
+                try {
+                    $model->$key = Crypt::encrypt($attribute);
+                } catch (EncryptException $e) {
+                    throw $e;
+                }
             }
         });
 
         // This event is called when we retrieve any record from the database
         static::retrieved(function($model) {
-            $attributes = $model->getFillableAttributes();
+            $attributes = $model->getEncryptionAttributes();
             
             foreach($attributes as $key => $attribute) {
                 try {
-                    $model->$key = decrypt($attribute);
+                    $model->$key = Crypt::decrypt($attribute);
                 } catch (DecryptException $e) {
-                    $model->$key = $attribute;
+                    throw $e;
                 }
             }
         });
@@ -40,18 +70,23 @@ trait EncryptsAttributes
     }
 
     /**
-     * Get only fillable attributes
+     * Get only encryption attributes
      */
-    private function getFillableAttributes()
+    private function getEncryptionAttributes()
     {
         $model = $this;
 
-        $attributes = collect($model->attributes)->filter(
-            function($attribute, $key) use ($model) {
-                return in_array($key, $model->fillable);
-            }
-        );
+        if(isset($model->encrypted_attributes))
+        {
+            $attributes = collect($model->attributes)->filter(
+                function($attribute, $key) use ($model) {
+                    return in_array($key, $model->encrypted_attributes);
+                }
+            );
 
-        return $attributes;
+            return $attributes;
+        }
+
+        return [];
     }
 }
