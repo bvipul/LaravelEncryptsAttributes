@@ -13,9 +13,9 @@ class EncryptsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->publishes([
-            __DIR__.'/config/encryptsAttributes.php' => config_path('encryptsAttributes.php'),
-        ], 'config');
+        // $this->publishes([
+        //     __DIR__.'/config/encryptsAttributes.php' => config_path('encryptsAttributes.php'),
+        // ], 'config');
     }
 
     /**
@@ -25,6 +25,6 @@ class EncryptsServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/config/encryptsAttributes.php', 'encAttr');
+        // $this->mergeConfigFrom(__DIR__.'/config/encryptsAttributes.php', 'encAttr');
     }
 }

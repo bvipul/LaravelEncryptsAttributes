@@ -17,7 +17,7 @@ trait EncryptsAttributes
 
         // This event is called when a new record is getting created or updated
         static::saving(function($model) {
-            $attributes = $model->getAttributes();
+            $attributes = $model->getFillableAttributes();
 
             foreach($attributes as $key => $attribute) {
                 $model->$key = encrypt($attribute);
@@ -26,7 +26,7 @@ trait EncryptsAttributes
 
         // This event is called when we retrieve any record from the database
         static::retrieved(function($model) {
-            $attributes = $model->getAttributes();
+            $attributes = $model->getFillableAttributes();
             
             foreach($attributes as $key => $attribute) {
                 try {
@@ -37,18 +37,6 @@ trait EncryptsAttributes
             }
         });
 
-    }
-
-    /**
-     * For getting all the attributes of Model.
-     */
-    public function getAttributes()
-    {
-        $attributes = config('encAttr.useFillableAttributes') 
-                ? $this->getFillableAttributes()
-                : $this->attributes;
-
-        return $attributes;
     }
 
     /**
