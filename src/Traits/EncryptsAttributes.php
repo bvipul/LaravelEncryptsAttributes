@@ -11,10 +11,8 @@ trait EncryptsAttributes
     // same key to encrypt or decrypt other wise we'll get an error. You
     // need to make sure, every developer in your team has the same
     // key in their env.
-    protected static function boot()
+    protected static function bootEncryptsAttributes()
     {
-        parent::boot();
-
         // This event is called when a new record is getting created or updated
         static::saving(function($model) {
             $attributes = $model->getFillableAttributes();
